@@ -30,6 +30,21 @@ MORADO = (160, 60, 220)
 CIAN = (60, 220, 220)
 ROSA = (255, 80, 180)
 
+# Imagen del menú principal
+ruta_menu = os.path.join("Imagen Menu Principal", "menu_principal.PNG")
+MENU_PRINCIPAL = pygame.image.load(ruta_menu).convert_alpha()
+MENU_PRINCIPAL = pygame.transform.scale(MENU_PRINCIPAL, (ANCHO, ALTO))
+
+# Imagen del menú de selección de personajes
+ruta_menu_personajes = os.path.join("Imagen Menu Personajes", "menu.png")
+MENU_PERSONAJES = pygame.image.load(ruta_menu_personajes).convert_alpha()
+MENU_PERSONAJES = pygame.transform.scale(MENU_PERSONAJES, (ANCHO, ALTO))
+
+# Imagen del fondo de la batalla
+ruta_fondo_batalla = os.path.join("Imagen Fondo de Batalla", "fondo batalla.png")
+FONDO_BATALLA = pygame.image.load(ruta_fondo_batalla).convert_alpha()
+FONDO_BATALLA = pygame.transform.scale(FONDO_BATALLA, (ANCHO, ALTO))
+
 # Estados del juego
 MENU_INICIO = 0
 SELECCION = 1
@@ -384,41 +399,10 @@ def dibujar_barra_especial(x, y, ancho, alto, energia, color):
 
 # ---------- ESCENARIO ----------
 def dibujar_escenario(t):
-    # Cielo de fondo con degradado
-    cielo = pygame.Surface((ANCHO, ALTO))
-    for i in range(ALTO):
-        ratio = i / ALTO
-        r = int(20 + 40 * ratio)
-        g = int(10 + 30 * ratio)
-        b = int(60 + 60 * ratio)
-        pygame.draw.line(cielo, (r, g, b), (0, i), (ANCHO, i))
-    PANTALLA.blit(ciempo := cielo, (0, 0))
+    # Fondo de batalla personalizado
+    PANTALLA.blit(FONDO_BATALLA, (0, 0))
 
-    # Luna / sol con pulso
-    luna_x, luna_y = ANCHO - 180, 110
-    radio = 50 + int(4 * pygame.math.Vector2(1, 0).rotate(t * 1.5).x)
-    halo = pygame.Surface((radio * 3, radio * 3), pygame.SRCALPHA)
-    pygame.draw.circle(halo, (255, 220, 180, 60), (radio * 3 // 2, radio * 3 // 2), radio + 30)
-    pygame.draw.circle(halo, (255, 220, 180, 110), (radio * 3 // 2, radio * 3 // 2), radio + 10)
-    PANTALLA.blit(halo, (luna_x - radio * 3 // 2, luna_y - radio * 3 // 2))
-    pygame.draw.circle(PANTALLA, (255, 240, 200), (luna_x, luna_y), radio)
-
-    # Edificios / silueta al fondo
-    edificios = [
-        (60, 380, 120, 200), (180, 320, 90, 260), (270, 360, 110, 220),
-        (380, 300, 80, 280), (460, 340, 130, 240), (590, 320, 90, 260),
-        (680, 360, 110, 220), (790, 310, 100, 270), (890, 350, 130, 230),
-        (1020, 330, 80, 250),
-    ]
-    for ex, ey, ew, eh in edificios:
-        pygame.draw.rect(PANTALLA, (15, 10, 35), (ex, ey, ew, eh))
-        # Ventanas
-        for wy in range(ey + 15, ey + eh - 10, 25):
-            for wx in range(ex + 8, ex + ew - 8, 18):
-                if (wx + wy) % 7 == 0 and random.random() > 0.5:
-                    pygame.draw.rect(PANTALLA, (255, 220, 120), (wx, wy, 8, 12))
-
-    # Suelo del estadio
+    # Suelo del estadio con un poco de contraste para que se vea bien sobre la imagen
     pygame.draw.rect(PANTALLA, (40, 30, 25), (0, 480, ANCHO, ALTO - 480))
     pygame.draw.rect(PANTALLA, DORADO, (0, 478, ANCHO, 4))
 
@@ -438,12 +422,12 @@ def pantalla_inicio():
             if ev.type == pygame.KEYDOWN or ev.type == pygame.MOUSEBUTTONDOWN:
                 return SELECCION
 
-        dibujar_escenario(t)
-        t += 1
+        # Fondo del menú principal personalizado
+        PANTALLA.blit(MENU_PRINCIPAL, (0, 0))
 
-        # Capa oscura semitransparente
+        # Oscurecer ligeramente para que el texto se lea mejor
         capa = pygame.Surface((ANCHO, ALTO), pygame.SRCALPHA)
-        capa.fill((0, 0, 0, 160))
+        capa.fill((0, 0, 0, 80))
         PANTALLA.blit(capa, (0, 0))
 
         # Título grande con efecto
@@ -481,10 +465,10 @@ def pantalla_seleccion():
                     seleccion_cpu = random.choice(opciones_cpu)
                     return seleccion_p1, seleccion_cpu
 
-        dibujar_escenario(t)
-        t += 1
+        PANTALLA.blit(MENU_PERSONAJES, (0, 0))
+
         capa = pygame.Surface((ANCHO, ALTO), pygame.SRCALPHA)
-        capa.fill((0, 0, 0, 180))
+        capa.fill((0, 0, 0, 120))
         PANTALLA.blit(capa, (0, 0))
 
         dibujar_texto("ELIGE TU LUCHADOR", ANCHO // 2, 70, 50, DORADO, True, True)
